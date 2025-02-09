@@ -1,5 +1,6 @@
 <%- include("partials/head") %>
 <body>
+  <%- include("partials/header") %>
   <form action="/signup" method="post">
     <h1>Sign up now</h1>
     <label for="username">
@@ -13,6 +14,10 @@
     <label for="confirmPassword">
       <input type="password" name="confirmPassword" id="confirmPassword">
       Confirm your password
+    </label>
+    <label for="adminPassword">
+      <input type="password" name="adminPassword" id="adminPassword">
+      To be an admin enter the admin password here
     </label>
     <button type="submit">Sign up</button>
   </form>

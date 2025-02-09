@@ -3,12 +3,10 @@ const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
 require("dotenv").config();
-const { addUser, findUser, showAllUsers } = require("../db/queries.ts");
+const { addUser } = require("../db/queries.ts");
 const { title } = require("process");
 
-const alphaErr = "must only contain letters";
 const nameLengthErr = "must be between 1 and 10 characters";
-const emailErr = "must be a valid email";
 
 const validateUser = [
   body("username")
@@ -29,6 +27,7 @@ const validateUser = [
     })
     .withMessage("Passwords must match")
     .trim(),
+  body("adminPassword").trim(),
 ];
 
 function generateHash(string) {
@@ -39,20 +38,23 @@ function generateHash(string) {
 }
 
 async function indexGet(req, res) {
-  console.log("user:", req.user, "session:", req.session);
-  if (!req.user) {
+  const user = req.user;
+  if (!user) {
     res.redirect("/login");
     return;
   }
   res.render("index", {
     title: "Users",
+    user: user,
   });
   return;
 }
 
 function loginGet(req, res, next) {
+  const user = req.user;
   res.render("login", {
     title: "Login",
+    user: user,
   });
 }
 
@@ -77,8 +79,10 @@ const loginPost = [
 ];
 
 async function signupGet(req, res, next) {
+  const user = req.user;
   res.render("signup", {
     title: "Sign Up",
+    user: user,
   });
 }
 
@@ -87,9 +91,11 @@ const signupPost = [
   async (req, res, next) => {
     const username = req.body.username;
     const hash = generateHash(req.body.password);
+    const adminHash = generateHash(process.env.ADMIN_PASSWORD);
+    const admin = bcrypt.compareSync(req.body.adminPassword, adminHash);
 
     try {
-      await addUser(username, hash);
+      await addUser(username, hash, admin);
       res.redirect("/");
       return;
     } catch (error) {

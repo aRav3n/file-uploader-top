@@ -48,6 +48,22 @@ form > * {
   text-align: center;
 }
 
+header {
+  align-items: center;
+  background-color: var(--light-green);
+  border-bottom: 1px solid var(--dark-green);
+  display: flex;
+  justify-content: space-between;
+  padding: 1vh 2vw;
+}
+
+header > div {
+  color: var(--dark-green);
+  display: flex;
+  font-weight: bold;
+  gap: 2vw;
+}
+
 input {
   background-color: var(--light-green);
   border: 1px solid var(--dark-green);

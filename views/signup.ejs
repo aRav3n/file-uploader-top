@@ -1,0 +1,21 @@
+<%- include("partials/head") %>
+<body>
+  <form action="/signup" method="post">
+    <h1>Sign up now</h1>
+    <label for="username">
+      <input type="text" name="username" id="username">
+      Username
+    </label>
+    <label for="password">
+      <input type="password" name="password" id="password">
+      Password
+    </label>
+    <label for="confirmPassword">
+      <input type="password" name="confirmPassword" id="confirmPassword">
+      Confirm your password
+    </label>
+    <button type="submit">Sign up</button>
+  </form>
+  <%- include("partials/footer") %>
+</body>
+</html>

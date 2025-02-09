@@ -7,7 +7,8 @@
 
 //npm install passport passport-local bcryptjs express-session
 
-// npm install prisma --save-dev
+// npm install prisma typescript tsx @types/node --save-dev
+// npm install @prisma/client
 
 const express = require("express");
 const app = express();

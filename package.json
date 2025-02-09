@@ -18,6 +18,8 @@
   "homepage": "https://github.com/aRav3n/file-uploader-top#readme",
   "description": "",
   "dependencies": {
+    "@prisma/client": "^6.3.1",
+    "@quixo3/prisma-session-store": "^3.1.13",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
@@ -29,6 +31,8 @@
     "pg": "^8.13.1"
   },
   "devDependencies": {
-    "prisma": "^6.3.1"
+    "@types/node": "^22.13.1",
+    "prisma": "^6.3.1",
+    "tsx": "^4.19.2"
   }
 }

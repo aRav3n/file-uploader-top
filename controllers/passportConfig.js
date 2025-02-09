@@ -3,15 +3,12 @@ const LocalStrategy = require("passport-local").Strategy;
 // const db = require("../db/queries");
 // const pool = require("../db/pool");
 const bcrypt = require("bcryptjs");
+const { findUser, findUserById } = require("../db/queries.ts");
 
 passport.use(
   new LocalStrategy(async (username, password, done) => {
     try {
-      const { rows } = await pool.query(
-        "SELECT * FROM users WHERE username = $1",
-        [username]
-      );
-      const user = rows[0];
+      const user = await findUser(username);
 
       if (!user) {
         return done(null, false, {
@@ -35,7 +32,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (userId, done) => {
   try {
-    const user = await db.findUserById(userId);
+    const user = await findUserById(userId);
     done(null, user);
   } catch (err) {
     done(err);

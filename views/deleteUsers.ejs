@@ -1,0 +1,16 @@
+<%- include("partials/head") %>
+<body>
+  <%- include("partials/header") %>
+  <h1>Be sure that you want to delete the user; this cannot be undone</h1>
+  <% allUsers.forEach(user => { %>
+    <% console.log("user:", user) %>
+    <div>
+      username: <%= user.username %>
+      <form action="/deleteAccount/<%= user.id %>" method="post">
+        <button type="submit">Delete <%= user.username %>'s account</button>
+      </form>
+    </div>
+  <% }) %>
+  <%- include("partials/footer") %>
+</body>
+</html>

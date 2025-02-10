@@ -3,7 +3,7 @@ const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
 require("dotenv").config();
-const { addUser } = require("../db/queries.ts");
+const { addUser, deleteUser, findAllUsers } = require("../db/queries.ts");
 const { title } = require("process");
 
 const nameLengthErr = "must be between 1 and 10 characters";
@@ -110,7 +110,52 @@ const signupPost = [
   },
 ];
 
+async function deleteAccountGet(req, res, next) {
+  const user = req.user;
+  res.render("deleteAccount", {
+    title: "Delete Account",
+    user: user,
+  });
+}
+
+async function deleteAccountPost(req, res, next) {
+  const userId = req.params.userId;
+  console.log(userId);
+  await deleteUser(userId);
+  res.redirect("/");
+}
+
+async function deleteUsersGet(req, res, next) {
+  const user = req.user;
+  console.log("user:", user);
+
+  const userIsAdmin = req.user.admin;
+  if (!userIsAdmin) {
+    res.redirect("/");
+  }
+
+  const allUsers = await findAllUsers();
+
+  res.render("deleteUsers", {
+    allUsers: allUsers,
+    title: "Delete Users",
+    user: user,
+  });
+}
+
+function errorGet(req, res, next) {
+  const user = req.user;
+  res.render("errorPage", {
+    title: "404 Not Found",
+    user: user,
+  });
+}
+
 module.exports = {
+  deleteAccountGet,
+  deleteAccountPost,
+  deleteUsersGet,
+  errorGet,
   indexGet,
   loginGet,
   loginPost,

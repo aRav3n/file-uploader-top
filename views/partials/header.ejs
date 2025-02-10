@@ -1,9 +1,24 @@
 <header>
   <% if (user) { %>
-  <div>Welcome <%= user.username %>!</div>
-  <form action="/logout" method="post">
-    <button type="submit">Log out</button>
-  </form>
+  <div>
+    Welcome <%= user.username %>!
+    <form action="/" method="get">
+      <button type="submit">Home</button>
+    </form>
+  </div>
+  <div>
+    <% if (user.admin) { %>
+      <form action="/deleteUsers" method="get">
+        <button type="submit">Delete users</button>
+      </form>
+    <% } %>
+    <form action="/logout" method="post">
+      <button type="submit">Log out</button>
+    </form>
+    <form action="/deleteAccount" method="get">
+      <button type="submit">Delete my account</button>
+    </form>
+  </div>
   <% } else { %> 
     <div>Hello there!</div>
     <div>

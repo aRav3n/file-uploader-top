@@ -1,0 +1,13 @@
+<%- include("partials/head") %>
+<body>
+  <%- include("partials/header") %>
+  <form action="/deleteAccount/<%= user.id %>" method="post">
+    <h1>Are you sure you want to delete your account?</h1>
+    <button type="submit" class="deleteButton">Yes, delete my account</button>
+  </form>
+  <form action="/" method="get">
+    <button type="submit">No, take me to the homepage</button>
+  </form>
+  <%- include("partials/footer") %>
+</body>
+</html>

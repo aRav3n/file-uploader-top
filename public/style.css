@@ -1,17 +1,24 @@
 :root {
-  --light-green: #deffde;
   --dark-green: #005300;
+  --dark-red: #530000;
+  --light-green: #deffde;
+  --light-red: #ffdede;
 }
 
 body {
   align-content: space-between;
   display: grid;
+  gap: 2vh;
   justify-content: center;
   justify-items: center;
   margin: 0;
   min-height: 100vh;
   min-width: 100vw;
   padding: 0;
+}
+
+body > div {
+  max-width: 90vw;
 }
 
 button {
@@ -31,14 +38,24 @@ button:hover {
 }
 
 .deleteButton {
-  background-color: #ffdede;
-  border-color: #530000;
-  color: #530000;
+  background-color: var(--light-red);
+  border-color: var(--dark-red);
+  color: var(--dark-red);
 }
 
 div {
   display: flex;
   flex-wrap: wrap;
+}
+
+.errors {
+  background-color: var(--light-red);
+  border: 1px solid var(--dark-red);
+  border-radius: 1vmin;
+  color: var(--dark-red);
+  display: grid;
+  justify-self: center;
+  padding: 2vh 2vw;
 }
 
 footer {
@@ -65,6 +82,7 @@ header {
   background-color: var(--light-green);
   border-bottom: 1px solid var(--dark-green);
   display: flex;
+  gap: 2vw;
   justify-content: space-between;
   justify-self: stretch;
   padding: 1vh 2vw;
@@ -74,8 +92,17 @@ header > div {
   align-items: center;
   color: var(--dark-green);
   display: flex;
+  flex-wrap: wrap;
   font-weight: bold;
   gap: 2vw;
+}
+
+header > div:first-child {
+  justify-content: start;
+}
+
+header > div:last-child {
+  justify-content: end;
 }
 
 input {

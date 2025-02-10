@@ -31,3 +31,6 @@
     </div>
   <% } %>
 </header>
+<% if (locals.errors) { %>
+  <%- include("errors") %>
+<% } %>

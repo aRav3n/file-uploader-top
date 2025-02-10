@@ -1,4 +1,3 @@
-// const db = require("../db/queries");
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
@@ -7,6 +6,7 @@ const { addUser, deleteUser, findAllUsers } = require("../db/queries.ts");
 const { title } = require("process");
 
 const nameLengthErr = "must be between 1 and 10 characters";
+let errors = false;
 
 const validateUser = [
   body("username")
@@ -39,56 +39,82 @@ function generateHash(string) {
 
 async function indexGet(req, res) {
   const user = req.user;
+
   if (!user) {
     res.redirect("/login");
     return;
   }
   res.render("index", {
-    title: "Users",
+    title: "Home",
     user: user,
+    errors: errors,
   });
+  errors = false;
   return;
 }
 
 function loginGet(req, res, next) {
   const user = req.user;
+
+  if (user) {
+    res.redirect("/");
+  }
+
   res.render("login", {
     title: "Login",
     user: user,
+    errors: errors,
   });
+  errors = false;
+  return;
 }
 
-const loginPost = [
-  validateUser,
-  async (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
+async function loginPost(req, res, next) {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      errors = [{ msg: "No user with that username or password found" }];
+      return res.redirect("/login");
+    }
+    req.logIn(user, (err) => {
       if (err) {
         return next(err);
       }
-      if (!user) {
-        return res.redirect("/login");
-      }
-      req.logIn(user, (err) => {
-        if (err) {
-          return next(err);
-        }
-        return res.redirect("/");
-      });
-    })(req, res, next);
-  },
-];
+      return res.redirect("/");
+    });
+  })(req, res, next);
+}
+
+async function logoutPost(req, res, next) {
+  req.logout((err) => {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
+}
 
 async function signupGet(req, res, next) {
   const user = req.user;
   res.render("signup", {
     title: "Sign Up",
     user: user,
+    errors: errors,
   });
+  errors = false;
 }
 
 const signupPost = [
   validateUser,
   async (req, res, next) => {
+    errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      errors = errors.errors;
+      return res.status(400).redirect("/signup");
+    }
+
     const username = req.body.username;
     const hash = generateHash(req.body.password);
     const adminHash = generateHash(process.env.ADMIN_PASSWORD);
@@ -100,11 +126,9 @@ const signupPost = [
       return;
     } catch (error) {
       console.error("Error creating user:", error);
+      errors = [{ msg: "Failed to create user. Please try again." }];
 
-      res.render("/signup", {
-        title: "Sign Up",
-        errors: [{ msg: "Failed to create user. Please try again." }],
-      });
+      res.redirect("/signup");
       return;
     }
   },
@@ -115,19 +139,19 @@ async function deleteAccountGet(req, res, next) {
   res.render("deleteAccount", {
     title: "Delete Account",
     user: user,
+    errors: errors,
   });
+  errors = false;
 }
 
 async function deleteAccountPost(req, res, next) {
   const userId = req.params.userId;
-  console.log(userId);
   await deleteUser(userId);
   res.redirect("/");
 }
 
 async function deleteUsersGet(req, res, next) {
   const user = req.user;
-  console.log("user:", user);
 
   const userIsAdmin = req.user.admin;
   if (!userIsAdmin) {
@@ -140,7 +164,9 @@ async function deleteUsersGet(req, res, next) {
     allUsers: allUsers,
     title: "Delete Users",
     user: user,
+    errors: errors,
   });
+  errors = false;
 }
 
 function errorGet(req, res, next) {
@@ -148,7 +174,9 @@ function errorGet(req, res, next) {
   res.render("errorPage", {
     title: "404 Not Found",
     user: user,
+    errors: errors,
   });
+  errors = false;
 }
 
 module.exports = {
@@ -159,6 +187,7 @@ module.exports = {
   indexGet,
   loginGet,
   loginPost,
+  logoutPost,
   signupGet,
   signupPost,
 };

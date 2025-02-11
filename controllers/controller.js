@@ -2,7 +2,12 @@ const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
 require("dotenv").config();
-const { addUser, deleteUser, findAllUsers } = require("../db/queries.ts");
+const {
+  addUser,
+  deleteUser,
+  findAllUsers,
+  findUserById,
+} = require("../db/queries.ts");
 const { title } = require("process");
 
 const nameLengthErr = "must be between 1 and 10 characters";
@@ -37,8 +42,17 @@ function generateHash(string) {
   return hash;
 }
 
+async function getUserInfoFromReq(req) {
+  if ("passport" in req.session) {
+    const userId = req.session.passport.user;
+    const user = await findUserById(userId);
+    return user;
+  }
+  return false;
+}
+
 async function indexGet(req, res) {
-  const user = req.user;
+  const user = await getUserInfoFromReq(req);
 
   if (!user) {
     res.redirect("/login");
@@ -53,8 +67,8 @@ async function indexGet(req, res) {
   return;
 }
 
-function loginGet(req, res, next) {
-  const user = req.user;
+async function loginGet(req, res, next) {
+  const user = await getUserInfoFromReq(req);
 
   if (user) {
     res.redirect("/");
@@ -88,7 +102,7 @@ async function loginPost(req, res, next) {
 }
 
 async function logoutPost(req, res, next) {
-  req.logout((err) => {
+  req.session.destroy((err) => {
     if (err) {
       return next(err);
     }
@@ -97,7 +111,7 @@ async function logoutPost(req, res, next) {
 }
 
 async function signupGet(req, res, next) {
-  const user = req.user;
+  const user = await getUserInfoFromReq(req);
   res.render("signup", {
     title: "Sign Up",
     user: user,
@@ -135,7 +149,7 @@ const signupPost = [
 ];
 
 async function deleteAccountGet(req, res, next) {
-  const user = req.user;
+  const user = await getUserInfoFromReq(req);
   res.render("deleteAccount", {
     title: "Delete Account",
     user: user,
@@ -151,9 +165,9 @@ async function deleteAccountPost(req, res, next) {
 }
 
 async function deleteUsersGet(req, res, next) {
-  const user = req.user;
+  const user = await getUserInfoFromReq(req);
 
-  const userIsAdmin = req.user.admin;
+  const userIsAdmin = user.admin;
   if (!userIsAdmin) {
     res.redirect("/");
   }
@@ -169,8 +183,8 @@ async function deleteUsersGet(req, res, next) {
   errors = false;
 }
 
-function errorGet(req, res, next) {
-  const user = req.user;
+async function errorGet(req, res, next) {
+  const user = await getUserInfoFromReq(req);
   res.render("errorPage", {
     title: "404 Not Found",
     user: user,

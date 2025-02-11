@@ -1,9 +1,10 @@
 <%- include("partials/head") %>
 <body>
   <%- include("partials/header") %>
-  <h1>Upload files here!</h1>
 
-
+  <form action="/uploadFile" method="get" class="addFile">
+    <button type="submit" >Upload a file</button>
+  </form>
   <%- include("partials/footer") %>
 </body>
 </html>

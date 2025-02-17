@@ -15,11 +15,12 @@ model Session {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  username String  @unique
+  id       Int      @id @default(autoincrement())
+  username String   @unique
   hash     String
-  admin    Boolean @default(false)
+  admin    Boolean  @default(false)
   files    File[]
+  Folder   Folder[]
 }
 
 model File {
@@ -28,4 +29,15 @@ model File {
   userId      Int?
   uploadDate  DateTime @default(now())
   description String
+  Folder      Folder?  @relation(fields: [folderId], references: [id])
+  folderId    Int?
+}
+
+model Folder {
+  id           Int      @id @default(autoincrement())
+  user         User?    @relation(fields: [userId], references: [id])
+  userId       Int?
+  creationDate DateTime @default(now())
+  name         String
+  File         File[]
 }

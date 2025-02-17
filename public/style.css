@@ -11,7 +11,7 @@
   display: grid;
   gap: 2vmin;
   justify-content: start;
-  justify-self: stretch;
+  justify-self: start;
   padding: 0 2vw;
 }
 
@@ -35,10 +35,12 @@ body {
 }
 
 body > div {
+  align-content: start;
   box-sizing: border-box;
   display: grid;
   flex-grow: 1;
   height: 100%;
+  justify-items: center;
   width: 100%;
 }
 
@@ -96,6 +98,7 @@ footer {
 }
 
 form {
+  align-content: start;
   color: var(--dark-green);
   display: grid;
   gap: 2vh;

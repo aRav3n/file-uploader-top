@@ -18,6 +18,7 @@
 .addFile > button {
   background-color: lightblue;
   border-color: blue;
+  color: blue;
 }
 
 body {
@@ -151,4 +152,10 @@ label {
   display: grid;
   gap: 0.5vh;
   text-align: left;
+}
+
+.uploadButton {
+  background-color: lightblue;
+  border: 1px solid blue;
+  color: blue;
 }

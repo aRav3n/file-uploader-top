@@ -13,6 +13,8 @@ const { title } = require("process");
 const nameLengthErr = "must be between 1 and 10 characters";
 let errors = false;
 
+// validations
+
 const validateUser = [
   body("username")
     .trim()
@@ -35,6 +37,10 @@ const validateUser = [
   body("adminPassword").trim(),
 ];
 
+const validateFile = [body("filename").trim()];
+
+// internal use functions
+
 function generateHash(string) {
   const salt = bcrypt.genSaltSync(10);
   const hash = bcrypt.hashSync(string, salt);
@@ -49,6 +55,53 @@ async function getUserInfoFromReq(req) {
     return user;
   }
   return false;
+}
+
+// export functions for router
+
+async function deleteAccountGet(req, res, next) {
+  const user = await getUserInfoFromReq(req);
+  res.render("deleteAccount", {
+    title: "Delete Account",
+    user: user,
+    errors: errors,
+  });
+  errors = false;
+}
+
+async function deleteAccountPost(req, res, next) {
+  const userId = req.params.userId;
+  await deleteUser(userId);
+  res.redirect("/");
+}
+
+async function deleteUsersGet(req, res, next) {
+  const user = await getUserInfoFromReq(req);
+
+  const userIsAdmin = user.admin;
+  if (!userIsAdmin) {
+    res.redirect("/");
+  }
+
+  const allUsers = await findAllUsers();
+
+  res.render("deleteUsers", {
+    allUsers: allUsers,
+    title: "Delete Users",
+    user: user,
+    errors: errors,
+  });
+  errors = false;
+}
+
+async function errorGet(req, res, next) {
+  const user = await getUserInfoFromReq(req);
+  res.render("errorPage", {
+    title: "404 Not Found",
+    user: user,
+    errors: errors,
+  });
+  errors = false;
 }
 
 async function indexGet(req, res) {
@@ -148,50 +201,24 @@ const signupPost = [
   },
 ];
 
-async function deleteAccountGet(req, res, next) {
+async function uploadFileGet(req, res, next) {
   const user = await getUserInfoFromReq(req);
-  res.render("deleteAccount", {
-    title: "Delete Account",
+
+  res.render("uploadFile", {
+    title: "Upload",
     user: user,
     errors: errors,
   });
   errors = false;
+  return;
 }
 
-async function deleteAccountPost(req, res, next) {
-  const userId = req.params.userId;
-  await deleteUser(userId);
-  res.redirect("/");
-}
-
-async function deleteUsersGet(req, res, next) {
-  const user = await getUserInfoFromReq(req);
-
-  const userIsAdmin = user.admin;
-  if (!userIsAdmin) {
+const uploadFilePost = [
+  validateFile,
+  async (req, res, next) => {
     res.redirect("/");
-  }
-
-  const allUsers = await findAllUsers();
-
-  res.render("deleteUsers", {
-    allUsers: allUsers,
-    title: "Delete Users",
-    user: user,
-    errors: errors,
-  });
-  errors = false;
-}
-
-async function errorGet(req, res, next) {
-  const user = await getUserInfoFromReq(req);
-  res.render("errorPage", {
-    title: "404 Not Found",
-    user: user,
-    errors: errors,
-  });
-  errors = false;
-}
+  },
+];
 
 module.exports = {
   deleteAccountGet,
@@ -204,4 +231,6 @@ module.exports = {
   logoutPost,
   signupGet,
   signupPost,
+  uploadFileGet,
+  uploadFilePost,
 };

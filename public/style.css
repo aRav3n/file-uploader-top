@@ -89,6 +89,14 @@ div {
   padding: 2vh 2vw;
 }
 
+#fileFolderContainer {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  justify-items: start;
+  width: 100%;
+}
+
 footer {
   background-color: var(--light-green);
   border-top: 1px solid var(--dark-green);
@@ -140,7 +148,8 @@ header > div:last-child {
   justify-content: end;
 }
 
-input {
+input,
+select {
   background-color: var(--light-green);
   border: 1px solid var(--dark-green);
   border-radius: 0.25rem;

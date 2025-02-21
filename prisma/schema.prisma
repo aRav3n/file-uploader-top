@@ -31,6 +31,7 @@ model File {
   description String
   Folder      Folder?  @relation(fields: [folderId], references: [id])
   folderId    Int?
+  filePath    String
 }
 
 model Folder {

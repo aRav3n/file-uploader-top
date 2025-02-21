@@ -2,10 +2,23 @@
 <body>
   <%- include("partials/header") %>
   <h1>Upload files here!</h1>
-  <form action="/uploadFile" method="post">
+  <form action="/uploadFile" method="post" enctype="multipart/form-data">
+    <label for="folder">
+      <select name="folder" id="folder">
+        <% for( let i = 0; i < folders.length; i++ ) { %>
+          <option value="<%= folders[i].name %>" <% if (i === 0) { %>
+            selected
+          <% } %> ><%= folders[i].name %></option>
+        <% } %>
+      </select>
+      Folder
+    </label>
     <label for="filename">
       <input type="text" name="filename" id="filename">
       Filename
+    </label>
+    <label for="file">
+      <input type="file" name="uploaded_file" id="file">
     </label>
     <button type="submit" class="uploadButton">Upload</button>
   </form>

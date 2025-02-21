@@ -3,12 +3,19 @@ const bcrypt = require("bcryptjs");
 const passport = require("passport");
 require("dotenv").config();
 const {
+  addFile,
+  addFolder,
   addUser,
   deleteUser,
+  findAllFolderFiles,
+  findAllUserFolders,
   findAllUsers,
+  findFolder,
+  findFolderId,
   findUserById,
 } = require("../db/queries.ts");
 const { title } = require("process");
+const path = require("path");
 
 const nameLengthErr = "must be between 1 and 10 characters";
 let errors = false;
@@ -37,7 +44,7 @@ const validateUser = [
   body("adminPassword").trim(),
 ];
 
-const validateFile = [body("filename").trim()];
+const validateFile = [body("filename").trim(), body("folder").trim()];
 
 // internal use functions
 
@@ -55,6 +62,14 @@ async function getUserInfoFromReq(req) {
     return user;
   }
   return false;
+}
+
+function checkFolderOwnership(folder, user) {
+  let isOwner = false;
+  if (folder.userId === user.id) {
+    isOwner = true;
+  }
+  return isOwner;
 }
 
 // export functions for router
@@ -104,16 +119,45 @@ async function errorGet(req, res, next) {
   errors = false;
 }
 
-async function indexGet(req, res) {
+async function folderPageGet(req, res, next) {
+  const folderId = Number(req.params.folderId);
+  if (isNaN(folderId)) {
+    return res.status(400).send("Invalid folder ID");
+  }
+
   const user = await getUserInfoFromReq(req);
 
+  const folder = await findFolder(folderId);
+  const okToAccess = checkFolderOwnership(folder, user);
+
+  if (okToAccess) {
+    const files = await findAllFolderFiles(folderId);
+    res.render("folder", {
+      title: folder.name,
+      user: user,
+      files: files,
+      errors: errors,
+    });
+    errors = false;
+    return;
+  }
+
+  errors = [{ msg: "You're not authorized to access that folder" }];
+  res.redirect("/");
+}
+
+async function indexGet(req, res) {
+  const user = await getUserInfoFromReq(req);
   if (!user) {
     res.redirect("/login");
     return;
   }
+
+  const folders = await findAllUserFolders(user.id);
   res.render("index", {
     title: "Home",
     user: user,
+    folders: folders,
     errors: errors,
   });
   errors = false;
@@ -203,10 +247,13 @@ const signupPost = [
 
 async function uploadFileGet(req, res, next) {
   const user = await getUserInfoFromReq(req);
+  const userId = user.id;
+  const userFolders = await findAllUserFolders(userId);
 
   res.render("uploadFile", {
     title: "Upload",
     user: user,
+    folders: userFolders,
     errors: errors,
   });
   errors = false;
@@ -216,7 +263,20 @@ async function uploadFileGet(req, res, next) {
 const uploadFilePost = [
   validateFile,
   async (req, res, next) => {
-    res.redirect("/");
+    const user = await getUserInfoFromReq(req);
+    const userId = user.id;
+    const file = req.file;
+    const filename = req.body.filename;
+    const folderName = req.body.folder;
+    const folderId = await findFolderId(userId, folderName);
+
+    if (file) {
+      const relativePath = req.file.path;
+      const parentFolderDirname = path.join(__dirname, "..");
+      const filePath = path.join(parentFolderDirname, relativePath);
+      await addFile(userId, folderId, filename, filePath);
+      res.redirect("/");
+    }
   },
 ];
 
@@ -225,6 +285,7 @@ module.exports = {
   deleteAccountPost,
   deleteUsersGet,
   errorGet,
+  folderPageGet,
   indexGet,
   loginGet,
   loginPost,

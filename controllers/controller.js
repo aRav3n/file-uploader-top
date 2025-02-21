@@ -6,6 +6,8 @@ const {
   addFile,
   addFolder,
   addUser,
+  deleteFile,
+  deleteFolder,
   deleteUser,
   findAllFolderFiles,
   findAllUserFolders,
@@ -91,13 +93,95 @@ async function deleteAccountPost(req, res, next) {
   res.redirect("/");
 }
 
-async function deleteFileGet(req, res, next) {}
+async function deleteFileGet(req, res, next) {
+  const fileId = Number(req.params.fileId);
+  if (isNaN(fileId)) {
+    return res.status(400).send("Invalid file ID");
+  }
 
-async function deleteFilePost(req, res, next) {}
+  const file = await findFile(fileId);
+  const user = await getUserInfoFromReq(req);
+  const okToAccess = checkOwnership(file, user);
 
-async function deleteFolderGet(req, res, next) {}
+  if (okToAccess) {
+    res.render("deleteFile", {
+      title: file.name,
+      user: user,
+      file: file,
+      errors: errors,
+    });
+    errors = false;
+    return;
+  }
 
-async function deleteFolderPost(req, res, next) {}
+  errors = [{ msg: "You're not authorized to access that file" }];
+  res.redirect("/");
+}
+
+async function deleteFilePost(req, res, next) {
+  const fileId = Number(req.params.fileId);
+  if (isNaN(fileId)) {
+    return res.status(400).send("Invalid file ID");
+  }
+
+  const file = await findFile(fileId);
+  const user = await getUserInfoFromReq(req);
+  const okToAccess = checkOwnership(file, user);
+
+  if (okToAccess) {
+    deleteFile(fileId, user);
+    res.redirect("/");
+    return;
+  }
+
+  errors = [{ msg: "You're not authorized to delete that file" }];
+  res.redirect("/");
+}
+
+async function deleteFolderGet(req, res, next) {
+  const folderId = Number(req.params.folderId);
+  if (isNaN(folderId)) {
+    return res.status(400).send("Invalid folder ID");
+  }
+
+  const folder = await findFolder(folderId);
+  const user = await getUserInfoFromReq(req);
+  const okToAccess = checkOwnership(folder, user);
+
+  if (okToAccess) {
+    res.render("deleteFolder", {
+      title: folder.name,
+      user: user,
+      folder: folder,
+      errors: errors,
+    });
+    errors = false;
+    return;
+  }
+
+  errors = [{ msg: "You're not authorized to access that folder" }];
+  res.redirect("/");
+}
+
+async function deleteFolderPost(req, res, next) {
+  const folderId = Number(req.params.folderId);
+  if (isNaN(folderId)) {
+    return res.status(400).send("Invalid folder ID");
+  }
+
+  const folder = await findFolder(folderId);
+  const user = await getUserInfoFromReq(req);
+  const okToAccess = checkOwnership(folder, user);
+
+  if (okToAccess) {
+    deleteFolder(folderId, user);
+    res.redirect("/");
+    return;
+  }
+
+  errors = [{ msg: "You're not authorized to delete that folder" }];
+  res.redirect("/");
+}
 
 async function deleteUsersGet(req, res, next) {
   const user = await getUserInfoFromReq(req);
@@ -148,7 +232,7 @@ async function filePageGet(req, res, next) {
     return;
   }
 
-  errors = [{ msg: "You're not authorized to access that folder" }];
+  errors = [{ msg: "You're not authorized to access that file" }];
   res.redirect("/");
 }
 
@@ -169,6 +253,7 @@ async function folderPageGet(req, res, next) {
       title: folder.name,
       user: user,
       files: files,
+      folder: folder,
       errors: errors,
     });
     errors = false;

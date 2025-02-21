@@ -1,7 +1,7 @@
 <%- include("partials/head") %>
 <body>
   <%- include("partials/header") %>
-  <h1><%= title %> Files</h1>
+  <h1><%= folder.name %> folder</h1>
   <div id="fileFolderContainer">
     <% files.forEach(file => { %>
       <form action="/file/<%= file.id %>" method="get">
@@ -12,6 +12,9 @@
       </form>
     <% }) %>
   </div>
+  <form action="/deleteFolder/<%= folder.id %>" method="get">
+    <button type="submit" class="deleteButton">Delete <%= folder.name %> folder</button>
+  </form>
   <%- include("partials/footer") %>
 </body>
 </html>

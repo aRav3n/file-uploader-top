@@ -2,6 +2,32 @@ import { PrismaClient, Prisma } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+export async function findAllFolderFiles(folderId) {
+  try {
+    const id = Number(folderId);
+    const files = await prisma.file.findMany({
+      where: { folderId: id },
+    });
+    return files;
+  } catch (err) {
+    console.error("Error finding folder's files:", err);
+  }
+}
+
+async function moveFilesToFolder(currentFolderId, newFolderId, user) {
+  try {
+    await prisma.file.updateMany({
+      where: { folderId: currentFolderId, userId: user.id },
+      data: { folderId: newFolderId },
+    });
+  } catch (err) {
+    console.error("Error moving files from folder:", err);
+    throw err;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
 export async function addFile(userId, folderId, fileName, filePath) {
   try {
     await prisma.file.create({
@@ -22,13 +48,13 @@ export async function addFile(userId, folderId, fileName, filePath) {
 
 export async function addFolder(userId, folderName) {
   try {
-    await prisma.folder.create({
+    const folder = await prisma.folder.create({
       data: {
         userId: userId,
         name: folderName,
       },
     });
-    return;
+    return folder;
   } catch (err) {
     console.error("Error adding folder:", err);
   } finally {
@@ -56,6 +82,35 @@ export async function addUser(username, hash, admin) {
   }
 }
 
+export async function deleteFile(fileId, user) {
+  const id = Number(fileId);
+  try {
+    await prisma.file.delete({
+      where: { id: id, userId: user.id },
+    });
+  } catch (err) {
+    console.error("Error deleting file:", err);
+    throw err;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+export async function deleteFolder(folderId, user) {
+  const id = Number(folderId);
+  try {
+    await moveFilesToFolder(id, null, user);
+    await prisma.folder.delete({
+      where: { id: id },
+    });
+  } catch (err) {
+    console.error("Error deleting folder:", err);
+    throw err;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
 export async function deleteUser(userId) {
   userId = Number(userId);
   try {
@@ -70,18 +125,6 @@ export async function deleteUser(userId) {
   }
 }
 
-export async function findAllFolderFiles(folderId) {
-  try {
-    const id = Number(folderId);
-    const files = await prisma.file.findMany({
-      where: { folderId: id },
-    });
-    return files;
-  } catch (err) {
-    console.error("Error finding folder's files:", err);
-  }
-}
-
 export async function findAllUserFolders(userId) {
   try {
     const id = Number(userId);
@@ -89,7 +132,11 @@ export async function findAllUserFolders(userId) {
       where: { userId: id },
     });
     if (folders.length === 0) {
-      await addFolder(id, "Main");
+      const newMainFolder = await addFolder(id, "Main");
+      const user = await findUserById(id);
+      if (newMainFolder) {
+        moveFilesToFolder(null, newMainFolder.id, user);
+      }
       folders = await prisma.folder.findMany({
         where: { userId: id },
       });

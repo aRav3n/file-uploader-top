@@ -40,6 +40,7 @@ body > div {
   box-sizing: border-box;
   display: grid;
   flex-grow: 1;
+  gap: 2vh;
   height: 100%;
   justify-items: center;
   width: 100%;
@@ -158,6 +159,10 @@ header > div:first-child {
 
 header > div:last-child {
   justify-content: end;
+}
+
+.info {
+  display: grid;
 }
 
 input,

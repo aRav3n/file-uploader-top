@@ -1,0 +1,15 @@
+<%- include("partials/head") %>
+<body>
+  <%- include("partials/header") %>
+  <div><h1>Are you sure you want to delete <%= file.name %>?</h1></div>
+  <div>
+    <form action="/deletefile/<%= file.id %>" method="post">
+      <button type="submit" class="deleteButton">Yes, delete my file</button>
+    </form>
+    <form action="/" method="get">
+      <button type="submit">No, take me to the homepage</button>
+    </form>
+  </div>
+  <%- include("partials/footer") %>
+</body>
+</html>

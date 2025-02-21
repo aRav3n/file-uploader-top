@@ -1,6 +1,14 @@
 <%- include("partials/head") %>
 <body>
   <%- include("partials/header") %>
+  <div class="info">
+    <p>File name: <%= file.name %></p>
+    <p>File size: </p>
+    <p>Uploaded on: <%= file.uploadDate %></p>
+  </div>
+  <form action="/deleteFile/<%= file.id %>" method="get">
+    <button type="submit" class="deleteButton">Delete file</button>
+  </form>
 
   <%- include("partials/footer") %>
 </body>

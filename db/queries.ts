@@ -7,7 +7,7 @@ export async function addFile(userId, folderId, fileName, filePath) {
     await prisma.file.create({
       data: {
         userId: userId,
-        description: fileName,
+        name: fileName,
         folderId: folderId,
         filePath: filePath,
       },
@@ -106,6 +106,21 @@ export async function findAllUsers() {
     return users;
   } catch (error) {
     console.error("Error in findAllUsers:", error);
+  }
+}
+
+export async function findFile(fileId) {
+  try {
+    const id = Number(fileId);
+    const file = await prisma.file.findFirst({
+      where: { id: id },
+    });
+    return file;
+  } catch (err) {
+    console.error("Error finding file:", err);
+    throw err;
+  } finally {
+    await prisma.$disconnect();
   }
 }
 

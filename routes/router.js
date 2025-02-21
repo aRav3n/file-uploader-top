@@ -6,9 +6,18 @@ const upload = multer({ dest: "uploads/" });
 
 router.get("/", controller.indexGet);
 
-router.get("/deleteUsers", controller.deleteUsersGet);
 router.get("/deleteAccount", controller.deleteAccountGet);
 router.post("/deleteAccount/:userId", controller.deleteAccountPost);
+
+router.get("/deleteFile/:fileId", controller.deleteFileGet);
+router.post("/deleteFile/:fileId", controller.deleteFilePost);
+
+router.get("/deleteFolder/:folderId", controller.deleteFolderGet);
+router.post("/deleteFolder/:folderId", controller.deleteFolderPost);
+
+router.get("/deleteUsers", controller.deleteUsersGet);
+
+router.get("/file/:fileId", controller.filePageGet);
 
 router.get("/folder/:folderId", controller.folderPageGet);
 

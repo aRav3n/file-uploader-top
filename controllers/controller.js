@@ -1,4 +1,4 @@
-const { body, validationResult } = require("express-validator");
+const { body, validationResult, check } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
 require("dotenv").config();
@@ -10,6 +10,7 @@ const {
   findAllFolderFiles,
   findAllUserFolders,
   findAllUsers,
+  findFile,
   findFolder,
   findFolderId,
   findUserById,
@@ -64,9 +65,9 @@ async function getUserInfoFromReq(req) {
   return false;
 }
 
-function checkFolderOwnership(folder, user) {
+function checkOwnership(item, user) {
   let isOwner = false;
-  if (folder.userId === user.id) {
+  if (item.userId === user.id) {
     isOwner = true;
   }
   return isOwner;
@@ -89,6 +90,14 @@ async function deleteAccountPost(req, res, next) {
   await deleteUser(userId);
   res.redirect("/");
 }
+
+async function deleteFileGet(req, res, next) {}
+
+async function deleteFilePost(req, res, next) {}
+
+async function deleteFolderGet(req, res, next) {}
+
+async function deleteFolderPost(req, res, next) {}
 
 async function deleteUsersGet(req, res, next) {
   const user = await getUserInfoFromReq(req);
@@ -119,6 +128,30 @@ async function errorGet(req, res, next) {
   errors = false;
 }
 
+async function filePageGet(req, res, next) {
+  const fileId = Number(req.params.fileId);
+  if (isNaN(fileId)) {
+    return res.status(400).send("Invalid file ID");
+  }
+
+  const file = await findFile(fileId);
+  const user = await getUserInfoFromReq(req);
+  const okToAccess = checkOwnership(file, user);
+  if (okToAccess) {
+    res.render("file", {
+      file: file,
+      title: file.name,
+      user: user,
+      errors: errors,
+    });
+    errors = false;
+    return;
+  }
+
+  errors = [{ msg: "You're not authorized to access that folder" }];
+  res.redirect("/");
+}
+
 async function folderPageGet(req, res, next) {
   const folderId = Number(req.params.folderId);
   if (isNaN(folderId)) {
@@ -128,7 +161,7 @@ async function folderPageGet(req, res, next) {
   const user = await getUserInfoFromReq(req);
 
   const folder = await findFolder(folderId);
-  const okToAccess = checkFolderOwnership(folder, user);
+  const okToAccess = checkOwnership(folder, user);
 
   if (okToAccess) {
     const files = await findAllFolderFiles(folderId);
@@ -284,8 +317,13 @@ const uploadFilePost = [
 module.exports = {
   deleteAccountGet,
   deleteAccountPost,
+  deleteFileGet,
+  deleteFilePost,
+  deleteFolderGet,
+  deleteFolderPost,
   deleteUsersGet,
   errorGet,
+  filePageGet,
   folderPageGet,
   indexGet,
   loginGet,

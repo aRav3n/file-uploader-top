@@ -17,6 +17,8 @@ router.post("/deleteFolder/:folderId", controller.deleteFolderPost);
 
 router.get("/deleteUsers", controller.deleteUsersGet);
 
+router.post("/download/:fileId", controller.downloadFilePost);
+
 router.get("/file/:fileId", controller.filePageGet);
 
 router.get("/folder/:folderId", controller.folderPageGet);

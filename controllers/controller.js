@@ -9,6 +9,7 @@ const {
   deleteFile,
   deleteFolder,
   deleteUser,
+  downloadFile,
   findAllFolderFiles,
   findAllUserFolders,
   findAllUsers,
@@ -200,6 +201,31 @@ async function deleteUsersGet(req, res, next) {
     errors: errors,
   });
   errors = false;
+}
+
+async function downloadFilePost(req, res, next) {
+  const fileId = Number(req.params.fileId);
+  if (isNaN(fileId)) {
+    return res.status(400).send("Invalid file ID");
+  }
+
+  const file = await findFile(fileId);
+  const user = await getUserInfoFromReq(req);
+  const okToAccess = checkOwnership(file, user);
+
+  if (okToAccess) {
+    const filePath = file.filePath;
+    console.log(filePath);
+    return res.download(filePath, (err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error downloading file.");
+      }
+    });
+  }
+
+  errors = [{ msg: "You're not authorized to download that file" }];
+  res.redirect("/");
 }
 
 async function errorGet(req, res, next) {
@@ -407,6 +433,7 @@ module.exports = {
   deleteFolderGet,
   deleteFolderPost,
   deleteUsersGet,
+  downloadFilePost,
   errorGet,
   filePageGet,
   folderPageGet,

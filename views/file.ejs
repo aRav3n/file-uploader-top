@@ -6,6 +6,9 @@
     <p>File size: </p>
     <p>Uploaded on: <%= file.uploadDate %></p>
   </div>
+  <form action="/download/<%= file.id %>" method="post">
+    <button type="submit">Download file</button>
+  </form>
   <form action="/deleteFile/<%= file.id %>" method="get">
     <button type="submit" class="deleteButton">Delete file</button>
   </form>

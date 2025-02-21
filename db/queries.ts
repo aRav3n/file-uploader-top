@@ -89,7 +89,7 @@ export async function findAllUserFolders(userId) {
       where: { userId: id },
     });
     if (folders.length === 0) {
-      await addFolder(id, "Home");
+      await addFolder(id, "Main");
       folders = await prisma.folder.findMany({
         where: { userId: id },
       });

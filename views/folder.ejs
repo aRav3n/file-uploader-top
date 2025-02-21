@@ -2,6 +2,16 @@
 <body>
   <%- include("partials/header") %>
   <h1><%= title %> Files</h1>
+  <div id="fileFolderContainer">
+    <% files.forEach(file => { %>
+      <form action="/file/<%= file.id %>" method="get">
+        <button type="submit">
+          <img src="/file.png" alt="">
+          <div><%= file.description %></div>
+        </button>
+      </form>
+    <% }) %>
+  </div>
   <%- include("partials/footer") %>
 </body>
 </html>

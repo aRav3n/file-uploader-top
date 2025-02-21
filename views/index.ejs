@@ -9,7 +9,10 @@
   <div id="fileFolderContainer">
     <% folders.forEach(folder => { %>
       <form action="/folder/<%= folder.id %>" method="get">
-        <button type="submit"><%= folder.name %></button>
+        <button type="submit">
+          <img src="/folder.png" alt="">
+          <%= folder.name %>
+        </button>
       </form>
     <% }) %>
   </div>

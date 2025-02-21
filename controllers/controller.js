@@ -266,7 +266,8 @@ const uploadFilePost = [
     const user = await getUserInfoFromReq(req);
     const userId = user.id;
     const file = req.file;
-    const filename = req.body.filename;
+    const filename =
+      req.body.filename.length > 0 ? req.body.filename : req.file.originalname;
     const folderName = req.body.folder;
     const folderId = await findFolderId(userId, folderName);
 

@@ -5,17 +5,6 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 const bucketName = "files";
 
-async function getBucket() {
-  try {
-    const { data, error } = await supabase.storage.getBucket(bucketName);
-    if (error) throw error;
-    return { data };
-  } catch (error) {
-    console.error("Error fetching files bucket:", error);
-    return { error };
-  }
-}
-
 async function uploadFile(userId, file, filename) {
   const path = `${userId}/${filename}`;
   let url = null;
@@ -32,6 +21,5 @@ async function uploadFile(userId, file, filename) {
 }
 
 module.exports = {
-  getBucket,
   uploadFile,
 };

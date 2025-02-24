@@ -215,14 +215,8 @@ async function downloadFilePost(req, res, next) {
   const okToAccess = checkOwnership(file, user);
 
   if (okToAccess) {
-    const filePath = file.filePath;
-    console.log(filePath);
-    return res.download(filePath, (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("Error downloading file.");
-      }
-    });
+    const downloadUrl = file.filePath + "?download";
+    return res.redirect(downloadUrl);
   }
 
   errors = [{ msg: "You're not authorized to download that file" }];

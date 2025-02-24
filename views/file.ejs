@@ -3,7 +3,7 @@
   <%- include("partials/header") %>
   <div class="info">
     <p>File name: <%= file.name %></p>
-    <p>File size: </p>
+    <p>File size: <%= file.fileSize %></p>
     <p>Uploaded on: <%= file.uploadDate %></p>
   </div>
   <form action="/download/<%= file.id %>" method="post">

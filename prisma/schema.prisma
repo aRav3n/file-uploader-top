@@ -32,6 +32,7 @@ model File {
   Folder     Folder?  @relation(fields: [folderId], references: [id])
   folderId   Int?
   filePath   String
+  fileSize   String?  @default("NA")
 }
 
 model Folder {

@@ -49,7 +49,13 @@ const validateUser = [
   body("adminPassword").trim(),
 ];
 
-const validateFile = [body("filename").trim(), body("folder").trim()];
+const validateFile = [
+  body("filename")
+    .customSanitizer((value) => value.replace(/\s+/g, "_"))
+    .isString()
+    .trim(),
+  body("folder").trim(),
+];
 
 // internal use functions
 
@@ -402,21 +408,38 @@ async function uploadFileGet(req, res, next) {
 const uploadFilePost = [
   validateFile,
   async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
     const user = await getUserInfoFromReq(req);
     const userId = user.id;
     const file = req.file;
+    console.log(file);
+    const fileSize = `${Math.floor(Number(file.size) / 100)/10000}Mb`;
+    console.log("file size:", fileSize);
     const originalName = req.file.originalname;
-    const extension = "." + originalName.split(".")[1];
-    const filename = (req.body.filename.length = 0
-      ? originalName
-      : req.body.filename + extension);
-    console.log("filename:", filename);
+    const splitName = originalName.split(".");
+    const length = splitName.length;
+    const extension = "." + splitName[length - 1];
+    console.log("extension:", extension);
+    const filename =
+      req.body.filename.length === 0
+        ? originalName
+        : req.body.filename + extension;
     const folderName = req.body.folder;
     const folderId = await findFolderId(userId, folderName);
 
     if (file) {
-      await addFile(userId, folderId, filename, file);
+      await addFile(userId, folderId, filename, file, fileSize);
+      console.log("filename:", filename);
       res.redirect("/");
+    } else {
+      errors = [
+        { msg: "If you want to upload a file you will need to select one." },
+      ];
+      res.redirect("/uploadFile");
     }
   },
 ];

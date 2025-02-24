@@ -29,7 +29,7 @@ async function moveFilesToFolder(currentFolderId, newFolderId, user) {
   }
 }
 
-export async function addFile(userId, folderId, filename, file) {
+export async function addFile(userId, folderId, filename, file, fileSize) {
   try {
     const url = await supabase.uploadFile(userId, file, filename);
     if (url) {
@@ -39,6 +39,7 @@ export async function addFile(userId, folderId, filename, file) {
           name: filename,
           folderId: folderId,
           filePath: url,
+          fileSize: fileSize,
         },
       });
     }

@@ -2,7 +2,7 @@ const { Router } = require("express");
 const controller = require("../controllers/controller");
 const router = Router();
 const multer = require("multer");
-const upload = multer({ dest: "uploads/" });
+const upload = multer();
 
 router.get("/", controller.indexGet);
 

@@ -415,15 +415,12 @@ const uploadFilePost = [
 
     const user = await getUserInfoFromReq(req);
     const userId = user.id;
-    const file = req.file;
-    console.log(file);
-    const fileSize = `${Math.floor(Number(file.size) / 100)/10000}Mb`;
-    console.log("file size:", fileSize);
+    const file = await req.file;
+    const fileSize = `${Math.floor(Number(file.size) / 1000)/1000}Mb`;
     const originalName = req.file.originalname;
     const splitName = originalName.split(".");
     const length = splitName.length;
     const extension = "." + splitName[length - 1];
-    console.log("extension:", extension);
     const filename =
       req.body.filename.length === 0
         ? originalName
@@ -432,8 +429,7 @@ const uploadFilePost = [
     const folderId = await findFolderId(userId, folderName);
 
     if (file) {
-      await addFile(userId, folderId, filename, file, fileSize);
-      console.log("filename:", filename);
+      await addFile(userId, folderId, filename, file.buffer, fileSize);
       res.redirect("/");
     } else {
       errors = [

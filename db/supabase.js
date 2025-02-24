@@ -11,6 +11,7 @@ async function uploadFile(userId, file, filename) {
   const { data, error } = await supabase.storage
     .from(bucketName)
     .upload(path, file);
+  console.log("supabase uploadFile data:", data);
   if (error) {
     console.error("error uploading file:", error);
   } else {

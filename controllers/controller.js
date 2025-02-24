@@ -20,6 +20,7 @@ const {
 } = require("../db/queries.ts");
 const { title } = require("process");
 const path = require("path");
+const supabase = require("../db/supabase");
 
 const nameLengthErr = "must be between 1 and 10 characters";
 let errors = false;
@@ -410,16 +411,17 @@ const uploadFilePost = [
     const user = await getUserInfoFromReq(req);
     const userId = user.id;
     const file = req.file;
-    const filename =
-      req.body.filename.length > 0 ? req.body.filename : req.file.originalname;
+    const originalName = req.file.originalname;
+    const extension = "." + originalName.split(".")[1];
+    const filename = (req.body.filename.length = 0
+      ? originalName
+      : req.body.filename + extension);
+    console.log("filename:", filename);
     const folderName = req.body.folder;
     const folderId = await findFolderId(userId, folderName);
 
     if (file) {
-      const relativePath = req.file.path;
-      const parentFolderDirname = path.join(__dirname, "..");
-      const filePath = path.join(parentFolderDirname, relativePath);
-      await addFile(userId, folderId, filename, filePath);
+      await addFile(userId, folderId, filename, file);
       res.redirect("/");
     }
   },

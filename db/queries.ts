@@ -1,4 +1,5 @@
 import { PrismaClient, Prisma } from "@prisma/client";
+import supabase from "./supabase.js";
 
 const prisma = new PrismaClient();
 
@@ -28,16 +29,19 @@ async function moveFilesToFolder(currentFolderId, newFolderId, user) {
   }
 }
 
-export async function addFile(userId, folderId, fileName, filePath) {
+export async function addFile(userId, folderId, filename, file) {
   try {
-    await prisma.file.create({
-      data: {
-        userId: userId,
-        name: fileName,
-        folderId: folderId,
-        filePath: filePath,
-      },
-    });
+    const url = await supabase.uploadFile(userId, file, filename);
+    if (url) {
+      await prisma.file.create({
+        data: {
+          userId: userId,
+          name: filename,
+          folderId: folderId,
+          filePath: url,
+        },
+      });
+    }
     return;
   } catch (err) {
     console.error("Error adding file:", err);

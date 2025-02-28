@@ -53,7 +53,7 @@ async function deleteFolder(userId) {
   if (error) {
     console.error(error);
   }
-  
+
   // delete all the user's files in supabase
   for (const file of data) {
     const relativePath = folderName + "/" + file.name;

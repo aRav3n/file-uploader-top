@@ -87,9 +87,26 @@ export async function addUser(username, hash, admin) {
   }
 }
 
+export async function findFile(fileId) {
+  try {
+    const id = Number(fileId);
+    const file = await prisma.file.findFirst({
+      where: { id: id },
+    });
+    return file;
+  } catch (err) {
+    console.error("Error finding file:", err);
+    throw err;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
 export async function deleteFile(fileId, user) {
   const id = Number(fileId);
+  const file = await findFile(id);
   try {
+    await supabase.deleteFile(file);
     await prisma.file.delete({
       where: { id: id, userId: user.id },
     });
@@ -119,6 +136,7 @@ export async function deleteFolder(folderId, user) {
 export async function deleteUser(userId) {
   userId = Number(userId);
   try {
+    await supabase.deleteFolder(userId);
     await prisma.user.delete({
       where: { id: userId },
     });
@@ -158,21 +176,6 @@ export async function findAllUsers() {
     return users;
   } catch (error) {
     console.error("Error in findAllUsers:", error);
-  }
-}
-
-export async function findFile(fileId) {
-  try {
-    const id = Number(fileId);
-    const file = await prisma.file.findFirst({
-      where: { id: id },
-    });
-    return file;
-  } catch (err) {
-    console.error("Error finding file:", err);
-    throw err;
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
